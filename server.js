@@ -8,10 +8,7 @@ const databaseName = "fluffy-kitten";
 
 const mongoClient = mongodb.MongoClient;
 
-mongoClient.connect(connectionsString, (error, client) => {
-  const db = client.db(databaseName);
-  const kittyCats = db.collection("kittyCats").find().toArray();
-});
+mongoClient.connect(connectionsString, (error, client) => {});
 
 const server = express();
 
@@ -24,7 +21,7 @@ server.get("/", (request, response) => {
 server.get("/cats", (request, response) => {
   mongoClient.connect(connectionsString, async (error, client) => {
     const db = client.db(databaseName);
-    const kittyCats = await db.collection("kittyCats").find().toArray;
+    const kittyCats = await db.collection("kittyCats").find().toArray();
     response.json(kittyCats);
   });
 });
