@@ -1,17 +1,19 @@
 import express from "express";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
-import { Server } from "mongodb";
 
-const connectionsString = "mongodb://localhost:27017/fluffy-kitten";
-mongoose.connect(connectionsString);
+import Cat from "./models/cat.model.js";
+
+const connectionsString =
+  "mongodb+srv://Emmanuellosch:6Niz6Xe4b36hnw0g@cluster0.zsgip.mongodb.net/fluffy-kitten?retryWrites=true&w=majority";
+mongoose.connect(connectionsString, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const server = express();
 
 server.use(bodyParser.json());
-
-const kittySchema = { name: String, flur: String, lives: Number };
-const Cat = mongoose.model("KittyCat", kittySchema);
 
 server.get("/", (request, response) => {
   response.json({ status: "Server is up and running" });
@@ -19,6 +21,12 @@ server.get("/", (request, response) => {
 
 server.get("/cats", (request, response) => {
   Cat.find().then((cats) => response.json(cats));
+});
+
+server.get("/cats/:catId", (request, response) => {
+  const catId = request.params.catId;
+
+  Cat.findById(catId).then((cat) => response.json(cat));
 });
 
 server.post("/cats", (request, response) => {
@@ -34,4 +42,18 @@ server.post("/cats", (request, response) => {
     .catch((error) => response.json(error));
 });
 
-server.listen(5000);
+server.put("/cats/:catId", (request, response) => {
+  const catId = request.params.catId;
+  const updatedCat = request.body;
+
+  Cat.findOneAndUpdate({ _id: catId }, updatedCat, {
+    new: true,
+  }).then((result) => response.json(result));
+});
+
+server.delete("/cats/:catId", (request, response) => {
+  const catId = request.params.catId;
+  Cat.findByIdAndDelete(catId).then((cats) => response.json(cats));
+});
+
+server.listen(4000);
